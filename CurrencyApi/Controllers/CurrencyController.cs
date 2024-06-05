@@ -21,7 +21,7 @@ namespace CurrencyApi.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(new Currency { Name = "PLN", ValueInDollar = 3.98 });
+            return Ok(new Currency { Name = "PLN", ValueInDollar = 4.98 });
         }
     }
 }
