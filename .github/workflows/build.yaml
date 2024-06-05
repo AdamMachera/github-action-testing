@@ -12,6 +12,12 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  AZURE_WEBAPP_NAME: poc-github-testing
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
+  DOTNET_VERSION: '8.0.x'          
+  AZURE_RESOURCEGROUP_NAME: prod-rg-weu-web 
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,20 +26,18 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
-      - name: Display dotnet version
-        run: dotnet --version
-      - name: Install dependencies
-        run: dotnet restore CurrencyApi/CurrencyApi.csproj
-      - name: Build
-        run: dotnet build CurrencyApi/CurrencyApi.csproj
-      - name: Publish
-        run: dotnet publish CurrencyApi/CurrencyApi.csproj -c Release -o web
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: dotnet build and publish
+        run: |
+          dotnet restore CurrencyApi/CurrencyApi.csproj
+          dotnet build CurrencyApi/CurrencyApi.csproj -c Release 
+          dotnet publish CurrencyApi/CurrencyApi.csproj -c Release o ./web
+          
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: web
-          path: web
+          path: ./web
       - name: Azure login
         uses: azure/login@v2
         with:
@@ -47,5 +51,11 @@ jobs:
           azcliversion: latest
           inlineScript: |
             az account show
+      
+      - name: 'Run Azure webapp deploy action using publish profile credentials'
+        uses: azure/webapps-deploy@v2
+        with: 
+          app-name: ${{ env.AZURE_WEBAPP_NAME }} # Replace with your app name
+          package: ./web
         
       
