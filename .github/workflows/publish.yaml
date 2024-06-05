@@ -1,39 +1,34 @@
-name: dotnet package
+name: publish web app
 
 on:
-  push:
-    branches:
-    - main
-  pull_request:
-    branches:
-    - main
+  release:
+    types: [published]
+  workflow_dispatch: 
+    inputs:
+      releaseType:
+        description: 'Release to dev'
+
+permissions:
+  id-token: write
+  contents: read
 
 env:
   AZURE_WEBAPP_NAME: poc-github-testing
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
   DOTNET_VERSION: '8.0.x'          
   AZURE_RESOURCEGROUP_NAME: prod-rg-weu-web 
 
 jobs:
-  build:
+  dev:
+    name: Deploy to dev
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-      - name: dotnet build and publish
-        run: |
-          dotnet restore CurrencyApi/CurrencyApi.csproj
-          dotnet build CurrencyApi/CurrencyApi.csproj -c Release 
-          dotnet publish CurrencyApi/CurrencyApi.csproj -c Release -o ./web
-          
-      - name: Upload
-        uses: actions/upload-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: web
-          path: ./web
-
+      - name: Display structure of downloaded files
+        run: ls -R
+          
       - name: Azure login
         uses: azure/login@v2
         with:
