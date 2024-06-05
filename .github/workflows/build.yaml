@@ -31,7 +31,7 @@ jobs:
         run: |
           dotnet restore CurrencyApi/CurrencyApi.csproj
           dotnet build CurrencyApi/CurrencyApi.csproj -c Release 
-          dotnet publish CurrencyApi/CurrencyApi.csproj -c Release o ./web
+          dotnet publish CurrencyApi/CurrencyApi.csproj -c Release -o ./web
           
       - name: Upload
         uses: actions/upload-artifact@v4
