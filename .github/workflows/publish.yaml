@@ -14,9 +14,10 @@ env:
   AZURE_RESOURCEGROUP_NAME: prod-rg-weu-web 
 
 jobs:
-  dev:
+  deployment:
     name: Deploy to dev
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       - name: Get run ID of "build" workflow
         id: get-run-id
@@ -28,6 +29,10 @@ jobs:
           echo "run-id=${RUN_ID}" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: dotnet build and publish
+        run: |
+          echo "AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}"
 
       - uses: actions/download-artifact@v4
         with:
